@@ -111,3 +111,9 @@ public/assets
 .assetpack
 src/manifest.json
 .aider*
+
+node_modules/*
+
+dist/*
+
+build/*
