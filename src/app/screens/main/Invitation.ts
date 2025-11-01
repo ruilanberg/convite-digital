@@ -1,70 +1,86 @@
 import { animate } from "motion";
-
-import { randomFloat } from "../../../engine/utils/random";
-import { waitFor } from "../../../engine/utils/waitFor";
+import { Sprite, Texture } from "pixi.js";
 
 import type { MainScreen } from "./MainScreen";
-import { LetterBackground } from "./LetterBackground";
+import { Label } from "../../ui/Label";
 
 export class Invitation {
-  private static readonly LOGO_COUNT = 3;
-  private static readonly ANIMATION_DURATION = 1;
-  private static readonly WAIT_DURATION = 0.5;
-
   public screen!: MainScreen;
 
-  private allLogoArray: LetterBackground[] = [];
-  private activeLogoArray: LetterBackground[] = [];
-  private yMin = -400;
-  private yMax = 400;
-  private xMin = -400;
-  private xMax = 400;
+  private card!: Sprite;
+  private title!: Label;
+  private subtitle!: Label;
+  private details!: Label;
 
   public async show(screen: MainScreen): Promise<void> {
     this.screen = screen;
 
-    for (let i = 0; i < Invitation.LOGO_COUNT; i++) {
-      this.add();
-      await waitFor(Invitation.WAIT_DURATION);
-    }
+    this.card = new Sprite({
+      texture: Texture.from("bg-Invite.png"),
+      anchor: 0.5,
+      scale: 0.5,
+      alpha: 0,
+    });
+    this.screen.mainContainer.addChild(this.card);
+
+    this.title = new Label({
+      text: "Chá de Bebê",
+      style: {
+        fill: 0xec1561,
+        fontFamily: "Pacifico, cursive",
+        fontSize: 64,
+      },
+    });
+    this.title.alpha = 0;
+    this.screen.mainContainer.addChild(this.title);
+
+    this.subtitle = new Label({
+      text: "da Alice",
+      style: {
+        fill: 0x4a4a4a,
+        fontSize: 36,
+      },
+    });
+    this.subtitle.alpha = 0;
+    this.screen.mainContainer.addChild(this.subtitle);
+
+    this.details = new Label({
+      text: "Sábado, 12 de Julho • 16h\nRua das Flores, 123",
+      style: {
+        fill: 0x4a4a4a,
+        fontSize: 24,
+        align: "center",
+        wordWrap: true,
+        wordWrapWidth: 520,
+      },
+    });
+    this.details.alpha = 0;
+    this.screen.mainContainer.addChild(this.details);
+
+    await animate(this.card, { alpha: 1 }, { duration: 0.4 });
+    await animate(this.title, { alpha: 1 }, { duration: 0.3 });
+    await animate(this.subtitle, { alpha: 1 }, { duration: 0.3 });
+    await animate(this.details, { alpha: 1 }, { duration: 0.3 });
   }
 
-  public add(): void {
-    const width = randomFloat(this.xMin, this.xMax);
-    const height = randomFloat(this.yMin, this.yMax);
-    const logo = new LetterBackground();
+  public update(): void {}
 
-    logo.alpha = 0;
-    logo.position.set(width, height);
-    animate(logo, { alpha: 1 }, { duration: Invitation.ANIMATION_DURATION });
-    this.screen.mainContainer.addChild(logo);
-    this.allLogoArray.push(logo);
-    this.activeLogoArray.push(logo);
-  }
+  public resize(w: number): void {
+    const targetWidth = Math.min(720, Math.floor(w * 0.75));
+    const baseWidth = this.card.texture.width || 1000;
+    const scale = targetWidth / baseWidth;
+    this.card.scale.set(scale);
+    this.card.position.set(0, 0);
 
-  public remove(): void {
-    const logo = this.activeLogoArray.pop();
-    if (logo) {
-      animate(logo, { alpha: 0 }, { duration: Invitation.ANIMATION_DURATION })
-        .then(() => {
-          this.screen.mainContainer.removeChild(logo);
-          const index = this.allLogoArray.indexOf(logo);
-          if (index !== -1) this.allLogoArray.splice(index, 1);
-        })
-        .catch((error) => {
-          console.error("Error during logo removal animation:", error);
-        });
-    }
-  }
+    const cardTop = -this.card.height * 0.5;
+    this.title.position.set(0, cardTop + this.card.height * 0.22);
+    this.subtitle.position.set(0, this.title.y + 56);
+    this.details.position.set(0, this.subtitle.y + 72);
 
-  public update(): void {
-    // No-op for now
-  }
-
-  public resize(w: number, h: number): void {
-    this.xMin = -w / 2;
-    this.xMax = w / 2;
-    this.yMin = -h / 2;
-    this.yMax = h / 2;
+    const small = w < 900;
+    this.title.style.fontSize = small ? 48 : 64;
+    this.subtitle.style.fontSize = small ? 28 : 36;
+    this.details.style.fontSize = small ? 20 : 24;
+    this.details.style.wordWrapWidth = Math.min(520, this.card.width * 0.8);
   }
 }

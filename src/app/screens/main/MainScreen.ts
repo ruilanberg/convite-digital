@@ -115,7 +115,7 @@ export class MainScreen extends Container {
     this.accessLocationButton.x = width / 2 + 200;
     this.accessLocationButton.y = height - 100;
 
-    this.invitation.resize(width, height);
+    this.invitation.resize(width);
   }
 
   /** Show screen with animations */
