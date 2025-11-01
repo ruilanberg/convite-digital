@@ -14,7 +14,7 @@ export default tseslint.config(
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
-    },
+  },
     rules: {},
   },
 );

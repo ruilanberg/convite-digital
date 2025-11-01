@@ -2,15 +2,14 @@ import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
 import type { Ticker } from "pixi.js";
-import { Container, TextStyle } from "pixi.js";
-
+import { Container } from "pixi.js";
 
 import { engine } from "../../getEngine";
-import { PausePopup } from "../../popups/PausePopup";
-import { SettingsPopup } from "../../popups/SettingsPopup";
 import { Button } from "../../ui/Button";
 
-import { Bouncer } from "./Bouncer";
+import { GiftSuggestionPopup } from "../../popups/GiftSuggestion.Popup";
+import { ConfirmAttendancePopup } from "../../popups/ConfirmAttendancePopup";
+import { Invitation } from "./Invitation";
 
 /** The screen that holds the app */
 export class MainScreen extends Container {
@@ -23,62 +22,67 @@ export class MainScreen extends Container {
   private accessLocationButton: FancyButton;
   private giftSuggestionButton: FancyButton;
 
-  private bouncer: Bouncer;
+  private invitation: Invitation;
   private paused = false;
+  private bgmStarted = false;
+  private _gestureHandler?: () => void;
 
   constructor() {
     super();
 
     this.mainContainer = new Container();
     this.addChild(this.mainContainer);
-    this.bouncer = new Bouncer();
-
-    const buttonAnimations = {
-      hover: {
-        props: {
-          scale: { x: 1.1, y: 1.1 },
-        },
-        duration: 100,
-      },
-      pressed: {
-        props: {
-          scale: { x: 0.9, y: 0.9 },
-        },
-        duration: 100,
-      },
-    };
-
-    const textStyle = new TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 48, // tamanho base
-    fill: 0xffffff,
-    align: 'center',
-});
+    this.invitation = new Invitation();
 
     this.confirmAttendanceButton = new Button({
       text: "Confirmar presença",
       width: 175,
       height: 175,
     });
-    this.confirmAttendanceButton.padding = 12;
-    this.confirmAttendanceButton.onPress.connect(() => this.bouncer.add());
+    this.confirmAttendanceButton.onPress.connect(() => {
+      this.startBgmOnce();
+      engine().navigation.presentPopup(ConfirmAttendancePopup);
+    });
     this.addChild(this.confirmAttendanceButton);
 
     this.accessLocationButton = new Button({
-      text: "Acessar localizaçao",
+      text: "Acessar localização",
       width: 175,
       height: 175,
     });
-    this.accessLocationButton.onPress.connect(() => this.bouncer.add());
+    this.accessLocationButton.onPress.connect(() => {
+      this.startBgmOnce();
+      window.open("https://maps.app.goo.gl/p6gTYMxGi3NgV2H29", "_blank");
+    });
     this.addChild(this.accessLocationButton);
 
     this.giftSuggestionButton = new Button({
-      text: "Sugestao de presente",
+      text: "Sugestão de presente",
       width: 175,
       height: 175,
     });
-    this.giftSuggestionButton.onPress.connect(() => this.bouncer.remove());
+    this.giftSuggestionButton.onPress.connect(() => {
+      this.startBgmOnce();
+      engine().navigation.presentPopup(GiftSuggestionPopup);
+    });
     this.addChild(this.giftSuggestionButton);
+
+    // Start BGM on the very first user gesture anywhere
+    this._gestureHandler = () => {
+      this.startBgmOnce();
+      document.removeEventListener("pointerdown", this._gestureHandler!);
+      document.removeEventListener("touchstart", this._gestureHandler!);
+      document.removeEventListener("keydown", this._gestureHandler!);
+    };
+    document.addEventListener("pointerdown", this._gestureHandler, {
+      once: true,
+    } as AddEventListenerOptions);
+    document.addEventListener("touchstart", this._gestureHandler, {
+      once: true,
+    } as AddEventListenerOptions);
+    document.addEventListener("keydown", this._gestureHandler, {
+      once: true,
+    } as AddEventListenerOptions);
   }
 
   /** Prepare the screen just before showing */
@@ -88,19 +92,7 @@ export class MainScreen extends Container {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public update(_time: Ticker) {
     if (this.paused) return;
-    this.bouncer.update();
-  }
-
-  /** Pause gameplay - automatically fired when a popup is presented */
-  public async pause() {
-    this.mainContainer.interactiveChildren = false;
-    this.paused = true;
-  }
-
-  /** Resume gameplay */
-  public async resume() {
-    this.mainContainer.interactiveChildren = true;
-    this.paused = false;
+    this.invitation.update();
   }
 
   /** Fully reset */
@@ -123,17 +115,12 @@ export class MainScreen extends Container {
     this.accessLocationButton.x = width / 2 + 200;
     this.accessLocationButton.y = height - 100;
 
-    this.bouncer.resize(width, height);
-  }
-
-  public ResizeText() {
-    const maxWidth = this.confirmAttendanceButton.width * 0.8; // 80% da largura do botão
-    const maxHeight = this.confirmAttendanceButton.height * 0.6; // 60% da altura do botão
+    this.invitation.resize(width, height);
   }
 
   /** Show screen with animations */
   public async show(): Promise<void> {
-    engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.5 });
+    // BGM starts on first user gesture (see constructor/startBgmOnce)
 
     const elementsToAnimate = [
       this.confirmAttendanceButton,
@@ -152,16 +139,17 @@ export class MainScreen extends Container {
     }
 
     await finalPromise;
-    this.bouncer.show(this);
+    this.invitation.show(this);
   }
 
   /** Hide screen with animations */
   public async hide() {}
 
-  /** Auto pause the app when window go out of focus */
-  public blur() {
-    if (!engine().navigation.currentPopup) {
-      engine().navigation.presentPopup(PausePopup);
-    }
+  public blur() {}
+
+  private startBgmOnce() {
+    if (this.bgmStarted) return;
+    this.bgmStarted = true;
+    engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.5 });
   }
 }
