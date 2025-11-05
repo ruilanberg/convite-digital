@@ -10,10 +10,9 @@ import { Button } from "../../ui/Button";
 import { GiftSuggestionPopup } from "../../popups/GiftSuggestion.Popup";
 import { ConfirmAttendancePopup } from "../../popups/ConfirmAttendancePopup";
 import { Invitation } from "./Invitation";
+import { INVITE } from "../../data/invitation";
 
-/** The screen that holds the app */
 export class MainScreen extends Container {
-  /** Assets bundles required by this screen */
   public static assetBundles = ["main"];
 
   public mainContainer: Container;
@@ -52,7 +51,7 @@ export class MainScreen extends Container {
     });
     this.accessLocationButton.onPress.connect(() => {
       this.startBgmOnce();
-      window.open("https://maps.app.goo.gl/p6gTYMxGi3NgV2H29", "_blank");
+      window.open(INVITE.mapUrl, "_blank");
     });
     this.addChild(this.accessLocationButton);
 
@@ -85,20 +84,16 @@ export class MainScreen extends Container {
     } as AddEventListenerOptions);
   }
 
-  /** Prepare the screen just before showing */
   public prepare() {}
 
-  /** Update the screen */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public update(_time: Ticker) {
     if (this.paused) return;
     this.invitation.update();
   }
 
-  /** Fully reset */
   public reset() {}
 
-  /** Resize the screen, fired whenever window size changes */
   public resize(width: number, height: number) {
     const centerX = width * 0.5;
     const centerY = height * 0.5;
@@ -106,19 +101,33 @@ export class MainScreen extends Container {
     this.mainContainer.x = centerX;
     this.mainContainer.y = centerY;
 
-    this.confirmAttendanceButton.x = width / 2 - 200;
-    this.confirmAttendanceButton.y = height - 100;
+    const isDesktop = width >= 1024;
+    const btnH = isDesktop ? 100 : 175;
+    const btnW = isDesktop ? 260 : 175;
+    const bottomMargin = isDesktop ? 120 : 300;
+    const gap = isDesktop ? 220 : 200;
+
+    // size
+    this.confirmAttendanceButton.width = btnW;
+    this.confirmAttendanceButton.height = btnH;
+    this.accessLocationButton.width = btnW;
+    this.accessLocationButton.height = btnH;
+    this.giftSuggestionButton.width = btnW;
+    this.giftSuggestionButton.height = btnH;
+
+    // position
+    this.confirmAttendanceButton.x = width / 2 - gap;
+    this.confirmAttendanceButton.y = height - bottomMargin;
 
     this.giftSuggestionButton.x = width / 2;
-    this.giftSuggestionButton.y = height - 100;
+    this.giftSuggestionButton.y = height - bottomMargin;
 
-    this.accessLocationButton.x = width / 2 + 200;
-    this.accessLocationButton.y = height - 100;
+    this.accessLocationButton.x = width / 2 + gap;
+    this.accessLocationButton.y = height - bottomMargin;
 
-    this.invitation.resize(width);
+    this.invitation.resize(width, height);
   }
 
-  /** Show screen with animations */
   public async show(): Promise<void> {
     // BGM starts on first user gesture (see constructor/startBgmOnce)
 
@@ -142,7 +151,6 @@ export class MainScreen extends Container {
     this.invitation.show(this);
   }
 
-  /** Hide screen with animations */
   public async hide() {}
 
   public blur() {}
@@ -153,3 +161,4 @@ export class MainScreen extends Container {
     engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.5 });
   }
 }
+

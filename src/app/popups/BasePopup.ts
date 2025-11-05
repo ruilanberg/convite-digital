@@ -8,8 +8,8 @@ import { RoundedBox } from "../ui/RoundedBox";
 
 const defaultPopupOptions = {
   text: "",
-  width: 301,
-  height: 112,
+  width: 350,
+  height: 300,
   fontSize: 28,
 };
 
@@ -17,15 +17,18 @@ type PopupOptions = typeof defaultPopupOptions;
 
 export class BasePopup extends Container {
   /** The dark semi-transparent background covering current screen */
-  private bg: Sprite;
+  protected bg: Sprite;
   /** Container for the popup UI components */
-  private panel: Container;
+  protected panel: Container;
   /** The popup title label */
-  private title: Label;
+  protected title: Label;
   /** Button that closes the popup */
-  private doneButton: Button;
+  protected doneButton: Button;
   /** The panel background */
-  private panelBase: RoundedBox;
+  protected panelBase: RoundedBox;
+  /** Design-time panel size (used to clamp on resize) */
+  private designWidth: number;
+  private designHeight: number;
 
   constructor(options: Partial<PopupOptions> = {}) {
     const opts = { ...defaultPopupOptions, ...options };
@@ -39,7 +42,12 @@ export class BasePopup extends Container {
     this.panel = new Container();
     this.addChild(this.panel);
 
-    this.panelBase = new RoundedBox({ height: 300 });
+    this.designWidth = opts.width ?? 350;
+    this.designHeight = opts.height ?? 300;
+    this.panelBase = new RoundedBox({
+      height: this.designHeight,
+      width: this.designWidth,
+    });
     this.panel.addChild(this.panelBase);
 
     this.title = new Label({
@@ -49,7 +57,7 @@ export class BasePopup extends Container {
     this.title.y = -80;
     this.panel.addChild(this.title);
 
-    this.doneButton = new Button({ text: "Resume" });
+    this.doneButton = new Button({ text: "OK" });
     this.doneButton.y = 70;
     this.doneButton.onPress.connect(() => engine().navigation.dismissPopup());
     this.panel.addChild(this.doneButton);
@@ -57,8 +65,20 @@ export class BasePopup extends Container {
 
   /** Resize the popup, fired whenever window size changes */
   public resize(width: number, height: number) {
+    // Fullscreen dim background
     this.bg.width = width;
     this.bg.height = height;
+
+    // Clamp panel size to viewport with margins
+    const marginX = Math.max(16, Math.round(width * 0.05));
+    const marginY = Math.max(16, Math.round(height * 0.05));
+    const maxW = Math.max(240, width - marginX * 2);
+    const maxH = Math.max(200, height - marginY * 2);
+    const panelW = Math.min(this.designWidth, maxW);
+    const panelH = Math.min(this.designHeight, maxH);
+    this.panelBase.setSize(panelW, panelH);
+
+    // Center the panel
     this.panel.x = width * 0.5;
     this.panel.y = height * 0.5;
   }

@@ -63,4 +63,23 @@ export class RoundedBox extends Container {
   public get boxHeight() {
     return this.image.height;
   }
+
+  /** Resize the box (and shadow) dynamically */
+  public setSize(width: number, height: number) {
+    const w = Math.max(1, Math.floor(width));
+    const h = Math.max(1, Math.floor(height));
+    this.image.width = w;
+    this.image.height = h;
+    this.image.x = -w * 0.5;
+    this.image.y = -h * 0.5;
+    if (this.shadow) {
+      this.shadow.width = w;
+      this.shadow.height = h;
+      // keep same left/top as image, Y already offset at creation
+      this.shadow.x = -w * 0.5;
+      // preserve original offset between image and shadow
+      const deltaY = this.shadow.y - this.image.y;
+      this.shadow.y = -h * 0.5 + deltaY;
+    }
+  }
 }

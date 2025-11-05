@@ -3,7 +3,11 @@ import { defineConfig } from "vite";
 import { assetpackPlugin } from "./scripts/assetpack-vite-plugin";
 
 // https://vite.dev/config/
+// Use GitHub Pages base path only for production builds
+const base = process.env.NODE_ENV === "production" ? "/convite-digital/" : "/";
+
 export default defineConfig({
+  base,
   plugins: [assetpackPlugin()],
   server: {
     port: 8080,
