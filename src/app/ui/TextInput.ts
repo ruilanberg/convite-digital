@@ -19,7 +19,7 @@ export class TextInput extends Container {
   private static dom: DomTextInput | null = null;
   private bg: RoundedBox;
   private outline: Graphics;
-  private label: Label;
+  private valueLabel: Label;
   private valueText = "";
   private placeholder: string;
   private focused = false;
@@ -44,15 +44,15 @@ export class TextInput extends Container {
       .fill({ color: 0xffffff });
     this.addChild(this.outline);
 
-    this.label = new Label({
+    this.valueLabel = new Label({
       text: this.placeholder,
       style: { fill: 0x999999, fontSize: 22, align: "left", wordWrap: false },
     });
     // Align text to the left inside the box
-    this.label.anchor.set(0, 0.5);
-    this.label.x = -width * 0.5 + 16;
-    this.label.y = 0;
-    this.addChild(this.label);
+    this.valueLabel.anchor.set(0, 0.5);
+    this.valueLabel.x = -width * 0.5 + 16;
+    this.valueLabel.y = 0;
+    this.addChild(this.valueLabel);
 
     // Caret for focused editing
     this.caret = new Graphics();
@@ -80,11 +80,11 @@ export class TextInput extends Container {
 
   private updateLabel() {
     if (!this.valueText) {
-      this.label.style.fill = 0x999999 as never;
-      this.label.text = this.placeholder;
+      this.valueLabel.style.fill = 0x999999 as never;
+      this.valueLabel.text = this.placeholder;
     } else {
-      this.label.style.fill = 0x4a4a4a as never;
-      this.label.text = this.valueText;
+      this.valueLabel.style.fill = 0x4a4a4a as never;
+      this.valueLabel.text = this.valueText;
     }
     this.updateCaretPosition();
   }
@@ -202,13 +202,13 @@ export class TextInput extends Container {
       // Basic length guard based on box width and font size
       const next = this.valueText + e.key;
       const oldText = this.valueText ? this.valueText : "";
-      this.label.text = next;
-      const fits = this.label.width < this.bg.boxWidth - 32; // padding
+      this.valueLabel.text = next;
+      const fits = this.valueLabel.width < this.bg.boxWidth - 32; // padding
       if (fits) {
         this.valueText = next;
       } else {
         // restore
-        this.label.text = oldText || this.placeholder;
+        this.valueLabel.text = oldText || this.placeholder;
       }
       this.updateLabel();
     }
@@ -264,7 +264,7 @@ export class TextInput extends Container {
   }
 
   private updateCaretPosition() {
-    const contentWidth = this.valueText ? this.label.width : 0;
+    const contentWidth = this.valueText ? this.valueLabel.width : 0;
     const inputWidth = this.bg.boxWidth;
     const left = -inputWidth * 0.5 + 16; // same padding as label.x
     const x = left + contentWidth + 2;
