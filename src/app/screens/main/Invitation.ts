@@ -107,4 +107,3 @@ export class Invitation {
     this.details.style.wordWrapWidth = Math.min(560, w * 0.85);
   }
 }
-

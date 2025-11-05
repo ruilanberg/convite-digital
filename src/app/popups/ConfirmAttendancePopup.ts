@@ -1,4 +1,4 @@
-import { List } from "@pixi/ui";
+﻿import { List } from "@pixi/ui";
 import { Container } from "pixi.js";
 import { BasePopup } from "./BasePopup";
 import { Button } from "../ui/Button";
@@ -10,12 +10,22 @@ class GuestRow extends Container {
   public removeButton: Button;
   public constructor() {
     super();
-    this.typeButton = new Button({ text: "Adulto", width: 140, height: 80, fontSize: 20 });
+    this.typeButton = new Button({
+      text: "Adulto",
+      width: 140,
+      height: 80,
+      fontSize: 20,
+    });
     this.typeButton.x = 200;
     this.typeButton.y = 0;
     this.addChild(this.typeButton);
 
-    this.removeButton = new Button({ text: "Remover", width: 140, height: 60, fontSize: 20 });
+    this.removeButton = new Button({
+      text: "Remover",
+      width: 140,
+      height: 60,
+      fontSize: 20,
+    });
     this.removeButton.x = 360;
     this.removeButton.y = 0;
     this.addChild(this.removeButton);
@@ -30,7 +40,12 @@ export class ConfirmAttendancePopup extends BasePopup {
   private addButton: Button;
 
   constructor() {
-    super({ text: "Confirmar presença", fontSize: 40, width: 860, height: 760 });
+    super({
+      text: "Confirmar presença",
+      fontSize: 40,
+      width: 860,
+      height: 760,
+    });
 
     this.title.y = -this.panelBase.boxHeight * 0.5 + 60;
     this.doneButton.y = this.panelBase.boxHeight * 0.5 - 40;
@@ -43,7 +58,12 @@ export class ConfirmAttendancePopup extends BasePopup {
 
     this.panel.eventMode = "static";
 
-    this.addButton = new Button({ text: "Adicionar convidado", width: 260, height: 80, fontSize: 24 });
+    this.addButton = new Button({
+      text: "Adicionar convidado",
+      width: 260,
+      height: 80,
+      fontSize: 24,
+    });
     this.addButton.x = -140;
     this.addButton.y = this.panelBase.boxHeight * 0.5 - 40;
     this.addButton.onPress.connect(() => this.addRow());
@@ -58,7 +78,11 @@ export class ConfirmAttendancePopup extends BasePopup {
   private addRow() {
     if (this.rows.length >= this.maxRows) return;
     const row = new GuestRow();
-    const nameInput = new TextInput({ width: 300, height: 80, placeholder: "Nome do convidado" });
+    const nameInput = new TextInput({
+      width: 300,
+      height: 80,
+      placeholder: "Nome do convidado",
+    });
     nameInput.x = -this.panelBase.boxWidth * 0.5 + 40 + 300 * 0.5;
     nameInput.y = 0;
     row.addChild(nameInput);
@@ -70,7 +94,8 @@ export class ConfirmAttendancePopup extends BasePopup {
 
     row.typeButton.onPress.connect(() => {
       if (!row.typeButton.textView) return;
-      const next = row.typeButton.textView.text === "Adulto" ? "Criança" : "Adulto";
+      const next =
+        row.typeButton.textView.text === "Adulto" ? "Criança" : "Adulto";
       row.typeButton.textView.text = next;
     });
 
@@ -94,7 +119,9 @@ export class ConfirmAttendancePopup extends BasePopup {
     this.addButton.alpha = atLimit ? 0.5 : 1;
     this.addButton.eventMode = atLimit ? "none" : "static";
     if (this.addButton.textView) {
-      this.addButton.textView.text = atLimit ? "Limite atingido" : "Adicionar convidado";
+      this.addButton.textView.text = atLimit
+        ? "Limite atingido"
+        : "Adicionar convidado";
     }
   }
 
@@ -125,7 +152,8 @@ export class ConfirmAttendancePopup extends BasePopup {
         input.y = 0;
         input.repositionOverlay();
       }
-      row.typeButton.x = -boxW * 0.5 + leftPadding + inputWidth + gap + typeW * 0.5;
+      row.typeButton.x =
+        -boxW * 0.5 + leftPadding + inputWidth + gap + typeW * 0.5;
       row.typeButton.y = 0;
       row.removeButton.x = row.typeButton.x + typeW * 0.5 + gap + removeW * 0.5;
       row.removeButton.y = 0;
@@ -152,7 +180,7 @@ export class ConfirmAttendancePopup extends BasePopup {
     if (guests.length === 0) return;
 
     const lines = guests.map((g, idx) => `${idx + 1}. ${g.name} - ${g.type}`);
-    const message = `Confirmação de presença:\n${lines.join("\n")}`;
+    const message = `ConfirmaÃ§Ã£o de presenÃ§a:\n${lines.join("\n")}`;
     const phone = (INVITE as any).whatsappPhone as string | undefined;
     const clean = (phone || "").replace(/[^0-9]/g, "");
     const url = clean
@@ -161,4 +189,5 @@ export class ConfirmAttendancePopup extends BasePopup {
     window.open(url, "_blank");
   }
 }
+
 

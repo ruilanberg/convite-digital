@@ -16,7 +16,12 @@ export class GiftSuggestionPopup extends BasePopup {
   private noteLabel: Label;
 
   constructor() {
-    super({ text: "Sugestão de presente", fontSize: 40, width: 860, height: 680 });
+    super({
+      text: "Sugestão de presente",
+      fontSize: 40,
+      width: 860,
+      height: 680,
+    });
 
     this.title.y = -this.panelBase.boxHeight * 0.5 + 60;
     if (this.doneButton.textView) this.doneButton.textView.text = "Fechar";
@@ -27,14 +32,28 @@ export class GiftSuggestionPopup extends BasePopup {
 
     this.giftText = new Label({
       text: "Sugestão: Fraldas Pampers",
-      style: { fill: 0x4a4a4a, fontSize: 28, wordWrap: true, wordWrapWidth: 420, align: "left" },
+      style: {
+        fill: 0x4a4a4a,
+        fontSize: 28,
+        wordWrap: true,
+        wordWrapWidth: 420,
+        align: "left",
+      },
     });
     this.giftText.anchor.set(0, 0.5);
     this.row.addChild(this.giftText);
 
-    this.imageSlot = new RoundedBox({ width: 220, height: 220, color: 0xf5f5f5, shadow: false });
+    this.imageSlot = new RoundedBox({
+      width: 220,
+      height: 220,
+      color: 0xf5f5f5,
+      shadow: false,
+    });
     this.row.addChild(this.imageSlot);
-    const imageSlotLabel = new Label({ text: "Imagem aqui", style: { fill: 0x999999, fontSize: 18 } });
+    const imageSlotLabel = new Label({
+      text: "Imagem aqui",
+      style: { fill: 0x999999, fontSize: 18 },
+    });
     imageSlotLabel.y = 0;
     this.imageSlot.addChild(imageSlotLabel);
 
@@ -43,21 +62,41 @@ export class GiftSuggestionPopup extends BasePopup {
 
     this.pixKeyLabel = new Label({
       text: "Chave PIX: (defina aqui)",
-      style: { fill: 0x4a4a4a, fontSize: 24, align: "left", wordWrap: true, wordWrapWidth: 700 },
+      style: {
+        fill: 0x4a4a4a,
+        fontSize: 24,
+        align: "left",
+        wordWrap: true,
+        wordWrapWidth: 700,
+      },
     });
     this.pixKeyLabel.anchor.set(0, 0.5);
     this.qrRow.addChild(this.pixKeyLabel);
 
     this.noteLabel = new Label({
       text: "Caso prefira presentear em dinheiro, use a chave PIX.",
-      style: { fill: 0x6a6a6a, fontSize: 20, align: "left", wordWrap: true, wordWrapWidth: 720 },
+      style: {
+        fill: 0x6a6a6a,
+        fontSize: 20,
+        align: "left",
+        wordWrap: true,
+        wordWrapWidth: 720,
+      },
     });
     this.noteLabel.anchor.set(0, 0.5);
     this.qrRow.addChild(this.noteLabel);
 
-    this.qrSlot = new RoundedBox({ width: 240, height: 240, color: 0xf5f5f5, shadow: false });
+    this.qrSlot = new RoundedBox({
+      width: 240,
+      height: 240,
+      color: 0xf5f5f5,
+      shadow: false,
+    });
     this.qrRow.addChild(this.qrSlot);
-    const qrSlotLabel = new Label({ text: "QR Code PIX", style: { fill: 0x999999, fontSize: 18 } });
+    const qrSlotLabel = new Label({
+      text: "QR Code PIX",
+      style: { fill: 0x999999, fontSize: 18 },
+    });
     this.qrSlot.addChild(qrSlotLabel);
   }
 
@@ -105,7 +144,9 @@ export class GiftSuggestionPopup extends BasePopup {
       }
     }
 
-    const rowHeight = stacked ? this.giftText.height + vGap + imageH : Math.max(this.giftText.height, imageH);
+    const rowHeight = stacked
+      ? this.giftText.height + vGap + imageH
+      : Math.max(this.giftText.height, imageH);
 
     this.qrRow.x = 0;
     this.qrRow.y = topY + rowHeight + vGap;
@@ -124,9 +165,14 @@ export class GiftSuggestionPopup extends BasePopup {
       this.pixKeyLabel.style.wordWrapWidth = wrap as never;
       this.noteLabel.style.wordWrapWidth = wrap as never;
       this.pixKeyLabel.x = leftX;
-      this.pixKeyLabel.y = this.qrSlot.y + qrH * 0.5 + vGap + this.pixKeyLabel.height * 0.5;
+      this.pixKeyLabel.y =
+        this.qrSlot.y + qrH * 0.5 + vGap + this.pixKeyLabel.height * 0.5;
       this.noteLabel.x = leftX;
-      this.noteLabel.y = this.pixKeyLabel.y + this.pixKeyLabel.height * 0.5 + 12 + this.noteLabel.height * 0.5;
+      this.noteLabel.y =
+        this.pixKeyLabel.y +
+        this.pixKeyLabel.height * 0.5 +
+        12 +
+        this.noteLabel.height * 0.5;
     } else {
       const wrap = pixAvailableTextWidth;
       this.pixKeyLabel.style.wordWrapWidth = wrap as never;
@@ -134,7 +180,11 @@ export class GiftSuggestionPopup extends BasePopup {
       this.pixKeyLabel.x = leftX;
       this.pixKeyLabel.y = this.pixKeyLabel.height * 0.5;
       this.noteLabel.x = leftX;
-      this.noteLabel.y = this.pixKeyLabel.y + this.pixKeyLabel.height * 0.5 + 12 + this.noteLabel.height * 0.5;
+      this.noteLabel.y =
+        this.pixKeyLabel.y +
+        this.pixKeyLabel.height * 0.5 +
+        12 +
+        this.noteLabel.height * 0.5;
       this.qrSlot.x = leftX + wrap + columnGap + qrW * 0.5;
       this.qrSlot.y = qrH * 0.5;
       if (this.qrSprite) {
@@ -150,7 +200,10 @@ export class GiftSuggestionPopup extends BasePopup {
     this.imageSprite.anchor.set(0.5);
     this.panel.addChild(this.imageSprite);
     this.imageSlot.visible = false;
-    this.resize((this.parent as Container).width, (this.parent as Container).height);
+    this.resize(
+      (this.parent as Container).width,
+      (this.parent as Container).height,
+    );
   }
 
   public setPixQr(texture: Texture) {
@@ -159,11 +212,13 @@ export class GiftSuggestionPopup extends BasePopup {
     this.qrSprite.anchor.set(0.5);
     this.panel.addChild(this.qrSprite);
     this.qrSlot.visible = false;
-    this.resize((this.parent as Container).width, (this.parent as Container).height);
+    this.resize(
+      (this.parent as Container).width,
+      (this.parent as Container).height,
+    );
   }
 
   public setPixKey(text: string) {
     this.pixKeyLabel.text = `Chave PIX: ${text}`;
   }
 }
-

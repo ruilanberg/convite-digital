@@ -100,14 +100,20 @@ export class TextInput extends Container {
     TextInput.active = this;
     this.startCaret();
 
-    const isTouch = ("ontouchstart" in window) || (navigator as any).maxTouchPoints > 0;
+    const isTouch =
+      "ontouchstart" in window ||
+      (((navigator as unknown as { maxTouchPoints?: number }).maxTouchPoints ?? 0) > 0);
 
     if (isTouch) {
       if (!TextInput.dom) TextInput.dom = new DomTextInput();
       this.usingDom = true;
       this.showDomOverlay();
-      window.addEventListener("resize", this._rebinder, { passive: true } as AddEventListenerOptions);
-      window.addEventListener("scroll", this._rebinder, { passive: true } as AddEventListenerOptions);
+      window.addEventListener("resize", this._rebinder, {
+        passive: true,
+      } as AddEventListenerOptions);
+      window.addEventListener("scroll", this._rebinder, {
+        passive: true,
+      } as AddEventListenerOptions);
     } else {
       this.usingDom = false;
       window.addEventListener("keydown", this.onKeyDown, true);
@@ -117,7 +123,11 @@ export class TextInput extends Container {
   /** Reposition DOM overlay when visible */
   public repositionOverlay() {
     if (!this.focused || !this.usingDom || !TextInput.dom) return;
-    const r = engine().renderer as any;
+    const r = engine().renderer as unknown as {
+      canvas: HTMLCanvasElement;
+      width: number;
+      height: number;
+    };
     const canvas = r.canvas as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
     const bounds = this.getBounds();
@@ -190,7 +200,6 @@ export class TextInput extends Container {
       e.preventDefault();
       // Basic length guard based on box width and font size
       const next = this.valueText + e.key;
-      const prev = this.label.text;
       const oldText = this.valueText ? this.valueText : "";
       this.label.text = next;
       const fits = this.label.width < this.bg.boxWidth - 32; // padding
@@ -206,7 +215,11 @@ export class TextInput extends Container {
 
   private showDomOverlay() {
     if (!TextInput.dom) return;
-    const r = engine().renderer as any;
+    const r = engine().renderer as unknown as {
+      canvas: HTMLCanvasElement;
+      width: number;
+      height: number;
+    };
     const canvas = r.canvas as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
     const bounds = this.getBounds();
@@ -263,6 +276,8 @@ export class TextInput extends Container {
     const height = this.bg.boxHeight - 24; // padding
     this.caret.clear();
     if (!visible) return;
-    this.caret.rect(0, -height * 0.5, 2, height).fill({ color: 0x4a4a4a, alpha: 0.8 });
+    this.caret
+      .rect(0, -height * 0.5, 2, height)
+      .fill({ color: 0x4a4a4a, alpha: 0.8 });
   }
 }
