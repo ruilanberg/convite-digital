@@ -181,13 +181,13 @@ export class ConfirmAttendancePopup extends BasePopup {
 
     const lines = guests.map((g, idx) => `${idx + 1}. ${g.name} - ${g.type}`);
     const message = `ConfirmaÃ§Ã£o de presenÃ§a:\n${lines.join("\n")}`;
-    const phone = (INVITE as any).whatsappPhone as string | undefined;
+    const phone = INVITE.whatsappPhone as string | undefined;
     const clean = (phone || "").replace(/[^0-9]/g, "");
     const url = clean
       ? `https://wa.me/${clean}?text=${encodeURIComponent(message)}`
       : `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   }
-}
+}\n
 
 
