@@ -1,4 +1,4 @@
-import { FancyButton } from "@pixi/ui";
+﻿import { FancyButton } from "@pixi/ui";
 import { animate } from "motion";
 import type { AnimationPlaybackControls } from "motion/react";
 import type { Ticker } from "pixi.js";
@@ -102,7 +102,7 @@ export class MainScreen extends Container {
     this.mainContainer.y = centerY;
 
     const isDesktop = width >= 1024;
-    const btnH = isDesktop ? 100 : 175;
+    const btnH = isDesktop ? 175 : 175;
     const btnW = isDesktop ? 260 : 175;
     const bottomMargin = isDesktop ? 120 : 300;
     const gap = isDesktop ? 220 : 200;
