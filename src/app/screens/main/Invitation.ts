@@ -43,8 +43,9 @@ export class Invitation {
     this.subtitle = new Label({
       text: `da ${INVITE.babyName}`,
       style: {
-        fill: 0x4a4a4a,
-        fontSize: 36,
+        fill: 0xec1561,
+        fontFamily: "Pacifico, cursive",
+        fontSize: 64,
       },
     });
     this.subtitle.alpha = 0;
@@ -53,8 +54,8 @@ export class Invitation {
     this.details = new Label({
       text: `${INVITE.description}\n\n${INVITE.date} • ${INVITE.time}\n${INVITE.addressLine1}`,
       style: {
-        fill: 0x4a4a4a,
-        fontSize: 24,
+        fill: 0x1e1e1e,
+        fontSize: 54,
         align: "center",
         wordWrap: true,
         wordWrapWidth: 520,
@@ -89,8 +90,8 @@ export class Invitation {
 
     const small = w < 900;
     const titleSize = small ? 48 : 64;
-    const subtitleSize = small ? 28 : 36;
-    const detailsSize = small ? 20 : 24;
+    const subtitleSize = small ? 42 : 50;
+    const detailsSize = small ? 30 : 34;
 
     this.title.style.fontSize = titleSize;
     this.subtitle.style.fontSize = subtitleSize;
@@ -99,7 +100,7 @@ export class Invitation {
     const top = -h * 0.5;
     const marginTop = h * 0.22;
     const gap1 = small ? 5 : 10;
-    const gap2 = small ? 160 : 195;
+    const gap2 = small ? 270 : 195;
 
     this.title.position.set(0, top + marginTop);
     this.subtitle.position.set(0, this.title.y + titleSize + gap1);
