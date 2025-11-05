@@ -158,8 +158,9 @@ export class ConfirmAttendancePopup extends BasePopup {
       row.removeButton.x = row.typeButton.x + typeW * 0.5 + gap + removeW * 0.5;
       row.removeButton.y = 0;
     });
-    const anyList = this.list as any;
-    if (typeof anyList.update === "function") anyList.update();
+    type MaybeUpdatable = { update?: () => void };
+    const maybe = this.list as unknown as MaybeUpdatable;
+    if (typeof maybe.update === "function") maybe.update();
   }
 
   public override async hide() {
@@ -180,7 +181,7 @@ export class ConfirmAttendancePopup extends BasePopup {
     if (guests.length === 0) return;
 
     const lines = guests.map((g, idx) => `${idx + 1}. ${g.name} - ${g.type}`);
-    const message = `ConfirmaÃ§Ã£o de presenÃ§a:\n${lines.join("\n")}`;
+    const message = `Confirmação de presença:\n${lines.join("\n")}`;
     const phone = INVITE.whatsappPhone as string | undefined;
     const clean = (phone || "").replace(/[^0-9]/g, "");
     const url = clean
@@ -188,6 +189,4 @@ export class ConfirmAttendancePopup extends BasePopup {
       : `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   }
-}\n
-
-
+}
