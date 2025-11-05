@@ -102,7 +102,8 @@ export class TextInput extends Container {
 
     const isTouch =
       "ontouchstart" in window ||
-      (((navigator as unknown as { maxTouchPoints?: number }).maxTouchPoints ?? 0) > 0);
+      ((navigator as unknown as { maxTouchPoints?: number }).maxTouchPoints ??
+        0) > 0;
 
     if (isTouch) {
       if (!TextInput.dom) TextInput.dom = new DomTextInput();
