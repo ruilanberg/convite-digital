@@ -69,9 +69,6 @@ export class MainScreen extends Container {
     // Start BGM on the very first user gesture anywhere
     this._gestureHandler = () => {
       this.startBgmOnce();
-      document.removeEventListener("pointerdown", this._gestureHandler!);
-      document.removeEventListener("touchstart", this._gestureHandler!);
-      document.removeEventListener("keydown", this._gestureHandler!);
     };
     document.addEventListener("pointerdown", this._gestureHandler, {
       once: true,
@@ -129,7 +126,8 @@ export class MainScreen extends Container {
   }
 
   public async show(): Promise<void> {
-    // BGM starts on first user gesture (see constructor/startBgmOnce)
+    // Try to start BGM immediately when the screen is shown
+    this.startBgmOnce();
 
     const elementsToAnimate = [
       this.confirmAttendanceButton,
@@ -159,5 +157,11 @@ export class MainScreen extends Container {
     if (this.bgmStarted) return;
     this.bgmStarted = true;
     engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.5 });
+    if (this._gestureHandler) {
+      document.removeEventListener("pointerdown", this._gestureHandler);
+      document.removeEventListener("touchstart", this._gestureHandler);
+      document.removeEventListener("keydown", this._gestureHandler);
+      this._gestureHandler = undefined;
+    }
   }
 }
