@@ -208,12 +208,13 @@ export class GiftSuggestionPopup extends BasePopup {
     const pixReferenceHeight = 220;
     this.pixSection.setSize(pixWidth, pixReferenceHeight);
 
+    const narrowLayout = contentWidth < 620;
     const pixSlotSize = Math.max(
-      120,
+      narrowLayout ? 110 : 120,
       Math.min(
-        180,
+        narrowLayout ? 160 : 180,
         imageHeight - pixPadding * 2,
-        (pixWidth - pixPadding * 2) * 0.4,
+        (pixWidth - pixPadding * 2) * (narrowLayout ? 0.36 : 0.4),
       ),
     );
     this.qrSlot.setSize(pixSlotSize, pixSlotSize);
@@ -223,7 +224,19 @@ export class GiftSuggestionPopup extends BasePopup {
     const buttonWidth = this.pixCopyButton.width;
     const buttonHeight = this.pixCopyButton.height;
     const copyButtonGap = 16;
-    const stackPix = textAreaWidth < buttonWidth + 240;
+    const minTextWidth = 220;
+    const minButtonWidth = 140;
+    const stackPix = textAreaWidth < minTextWidth + minButtonWidth;
+    const buttonTargetWidth = stackPix
+      ? Math.min(190, Math.max(minButtonWidth, usableWidth - 16))
+      : Math.min(
+          190,
+          Math.max(minButtonWidth, Math.min(textAreaWidth - minTextWidth, 220)),
+        );
+    const buttonScale = buttonTargetWidth / buttonWidth;
+    const buttonTargetHeight = buttonHeight * buttonScale;
+    this.pixCopyButton.width = buttonTargetWidth;
+    this.pixCopyButton.height = buttonTargetHeight;
     const spacer = 20;
 
     if (stackPix) {
@@ -256,24 +269,24 @@ export class GiftSuggestionPopup extends BasePopup {
       const textTop = this.qrSlot.y + pixSlotSize * 0.5 + spacer;
       this.pixKeyLabel.position.set(textX, textTop);
       this.pixCopyButton.position.set(
-        textX + buttonWidth * 0.5,
-        textTop + keyHeight + copyButtonGap + buttonHeight * 0.5,
+        textX + buttonTargetWidth * 0.5,
+        textTop + keyHeight + copyButtonGap + buttonTargetHeight * 0.5,
       );
       this.noteLabel.position.set(
         textX,
-        this.pixCopyButton.y + buttonHeight * 0.5 + 12,
+        this.pixCopyButton.y + buttonTargetHeight * 0.5 + 12,
       );
     } else {
       const textWrap = Math.max(
         240,
-        textAreaWidth - buttonWidth - copyButtonGap,
+        textAreaWidth - buttonTargetWidth - copyButtonGap,
       );
       this.pixKeyLabel.style.wordWrapWidth = textWrap as never;
       const noteWrap = Math.max(240, textAreaWidth);
       this.noteLabel.style.wordWrapWidth = noteWrap as never;
       const keyHeight = this.pixKeyLabel.getLocalBounds().height;
       const noteHeight = this.noteLabel.getLocalBounds().height;
-      const rowHeight = Math.max(keyHeight, buttonHeight);
+      const rowHeight = Math.max(keyHeight, buttonTargetHeight);
       const textBlockHeight = rowHeight + 12 + noteHeight;
       const pixHeight = Math.max(
         pixPadding * 2 + pixSlotSize,
@@ -294,7 +307,7 @@ export class GiftSuggestionPopup extends BasePopup {
       const labelOffset = Math.max(0, (rowHeight - keyHeight) * 0.5);
       this.pixKeyLabel.position.set(textX, sectionTop + labelOffset);
       this.pixCopyButton.position.set(
-        textX + textWrap + copyButtonGap + buttonWidth * 0.5,
+        textX + textWrap + copyButtonGap + buttonTargetWidth * 0.5,
         sectionTop + rowHeight * 0.5,
       );
       this.noteLabel.position.set(textX, sectionTop + rowHeight + 12);
