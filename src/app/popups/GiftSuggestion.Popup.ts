@@ -247,8 +247,12 @@ export class GiftSuggestionPopup extends BasePopup {
         currentY + this.pixSection.boxHeight * 0.5,
       );
       const sectionTop = -this.pixSection.boxHeight * 0.5 + pixPadding;
-      this.qrSlot.position.set(0, sectionTop + pixSlotSize * 0.5);
-      const textX = -this.pixSection.boxWidth * 0.5 + pixPadding;
+      const sectionLeft = -this.pixSection.boxWidth * 0.5 + pixPadding;
+      this.qrSlot.position.set(
+        sectionLeft + pixSlotSize * 0.5,
+        sectionTop + pixSlotSize * 0.5,
+      );
+      const textX = sectionLeft;
       const textTop = this.qrSlot.y + pixSlotSize * 0.5 + spacer;
       this.pixKeyLabel.position.set(textX, textTop);
       this.pixCopyButton.position.set(
