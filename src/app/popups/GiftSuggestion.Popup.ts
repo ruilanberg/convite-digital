@@ -3,6 +3,7 @@ import { Container, Sprite, Texture } from "pixi.js";
 import { BasePopup } from "./BasePopup";
 import { Label } from "../ui/Label";
 import { RoundedBox } from "../ui/RoundedBox";
+import { Button } from "../ui/Button";
 
 export class GiftSuggestionPopup extends BasePopup {
   private content: Container;
@@ -14,9 +15,12 @@ export class GiftSuggestionPopup extends BasePopup {
   private pixSection: RoundedBox;
   private pixKeyLabel: Label;
   private noteLabel: Label;
+  private pixCopyButton: Button;
   private qrSlot: RoundedBox;
   private qrSlotLabel: Label;
   private qrSprite?: Sprite;
+  private pixKeyValue = "55991538667";
+  private copyResetTimeout?: number;
 
   constructor() {
     super({
@@ -54,6 +58,15 @@ export class GiftSuggestionPopup extends BasePopup {
       style: { fill: 0x999999, fontSize: 18 },
     });
     this.imageSlot.addChild(this.imageSlotLabel);
+    try {
+      const giftTexture = Texture.from("pampers_icon.jpg");
+      this.imageSprite = new Sprite(giftTexture);
+      this.imageSprite.anchor.set(0.5);
+      this.imageSlot.addChild(this.imageSprite);
+      this.imageSlotLabel.visible = false;
+    } catch {
+      this.imageSprite = undefined;
+    }
 
     this.giftText = new Label({
       text: "Sugestão: Fraldas Pampers",
@@ -89,6 +102,17 @@ export class GiftSuggestionPopup extends BasePopup {
     this.pixKeyLabel.anchor.set(0, 0);
     this.pixSection.addChild(this.pixKeyLabel);
 
+    this.pixCopyButton = new Button({
+      text: "Copiar",
+      width: 190,
+      height: 90,
+      fontSize: 26,
+    });
+    this.pixCopyButton.onPress.connect(() => {
+      void this.copyPixKey();
+    });
+    this.pixSection.addChild(this.pixCopyButton);
+
     this.noteLabel = new Label({
       text: "Caso prefira presentear em dinheiro, use a chave PIX.",
       style: {
@@ -115,6 +139,17 @@ export class GiftSuggestionPopup extends BasePopup {
       style: { fill: 0x999999, fontSize: 18 },
     });
     this.qrSlot.addChild(this.qrSlotLabel);
+    try {
+      const qrTexture = Texture.from("qrcodepix.png");
+      this.qrSprite = new Sprite(qrTexture);
+      this.qrSprite.anchor.set(0.5);
+      this.qrSlot.addChild(this.qrSprite);
+      this.qrSlotLabel.visible = false;
+    } catch {
+      this.qrSprite = undefined;
+    }
+
+    this.setPixKey(this.pixKeyValue);
   }
 
   public override resize(width: number, height: number): void {
@@ -185,17 +220,27 @@ export class GiftSuggestionPopup extends BasePopup {
 
     const usableWidth = pixWidth - pixPadding * 2;
     const textAreaWidth = usableWidth - pixSlotSize - pixColumnGap;
-    const stackPix = textAreaWidth < 260;
+    const buttonWidth = this.pixCopyButton.width;
+    const buttonHeight = this.pixCopyButton.height;
+    const copyButtonGap = 16;
+    const stackPix = textAreaWidth < buttonWidth + 240;
     const spacer = 20;
 
     if (stackPix) {
-      const textWrap = Math.max(220, usableWidth);
+      const textWrap = Math.max(240, usableWidth);
       this.pixKeyLabel.style.wordWrapWidth = textWrap as never;
       this.noteLabel.style.wordWrapWidth = textWrap as never;
       const keyHeight = this.pixKeyLabel.getLocalBounds().height;
       const noteHeight = this.noteLabel.getLocalBounds().height;
-      const textBlockHeight = keyHeight + 12 + noteHeight;
-      const pixHeight = pixPadding * 2 + pixSlotSize + spacer + textBlockHeight;
+      const pixHeight =
+        pixPadding * 2 +
+        pixSlotSize +
+        spacer +
+        keyHeight +
+        copyButtonGap +
+        buttonHeight +
+        12 +
+        noteHeight;
       this.pixSection.setSize(pixWidth, pixHeight);
       this.pixSection.position.set(
         0,
@@ -206,14 +251,26 @@ export class GiftSuggestionPopup extends BasePopup {
       const textX = -this.pixSection.boxWidth * 0.5 + pixPadding;
       const textTop = this.qrSlot.y + pixSlotSize * 0.5 + spacer;
       this.pixKeyLabel.position.set(textX, textTop);
-      this.noteLabel.position.set(textX, textTop + keyHeight + 12);
+      this.pixCopyButton.position.set(
+        textX + buttonWidth * 0.5,
+        textTop + keyHeight + copyButtonGap + buttonHeight * 0.5,
+      );
+      this.noteLabel.position.set(
+        textX,
+        this.pixCopyButton.y + buttonHeight * 0.5 + 12,
+      );
     } else {
-      const textWrap = Math.max(220, textAreaWidth);
+      const textWrap = Math.max(
+        240,
+        textAreaWidth - buttonWidth - copyButtonGap,
+      );
       this.pixKeyLabel.style.wordWrapWidth = textWrap as never;
-      this.noteLabel.style.wordWrapWidth = textWrap as never;
+      const noteWrap = Math.max(240, textAreaWidth);
+      this.noteLabel.style.wordWrapWidth = noteWrap as never;
       const keyHeight = this.pixKeyLabel.getLocalBounds().height;
       const noteHeight = this.noteLabel.getLocalBounds().height;
-      const textBlockHeight = keyHeight + 12 + noteHeight;
+      const rowHeight = Math.max(keyHeight, buttonHeight);
+      const textBlockHeight = rowHeight + 12 + noteHeight;
       const pixHeight = Math.max(
         pixPadding * 2 + pixSlotSize,
         pixPadding * 2 + textBlockHeight,
@@ -225,10 +282,18 @@ export class GiftSuggestionPopup extends BasePopup {
       );
       const sectionTop = -this.pixSection.boxHeight * 0.5 + pixPadding;
       const sectionLeft = -this.pixSection.boxWidth * 0.5 + pixPadding;
-      this.qrSlot.position.set(sectionLeft + pixSlotSize * 0.5, 0);
+      this.qrSlot.position.set(
+        sectionLeft + pixSlotSize * 0.5,
+        sectionTop + pixSlotSize * 0.5,
+      );
       const textX = this.qrSlot.x + pixSlotSize * 0.5 + pixColumnGap;
-      this.pixKeyLabel.position.set(textX, sectionTop);
-      this.noteLabel.position.set(textX, sectionTop + keyHeight + 12);
+      const labelOffset = Math.max(0, (rowHeight - keyHeight) * 0.5);
+      this.pixKeyLabel.position.set(textX, sectionTop + labelOffset);
+      this.pixCopyButton.position.set(
+        textX + textWrap + copyButtonGap + buttonWidth * 0.5,
+        sectionTop + rowHeight * 0.5,
+      );
+      this.noteLabel.position.set(textX, sectionTop + rowHeight + 12);
     }
 
     this.qrSlotLabel.visible = !this.qrSprite;
@@ -267,6 +332,62 @@ export class GiftSuggestionPopup extends BasePopup {
   }
 
   public setPixKey(text: string) {
+    this.pixKeyValue = text;
     this.pixKeyLabel.text = `Chave PIX: ${text}`;
+    if (this.pixCopyButton.textView) {
+      this.pixCopyButton.textView.text = "Copiar";
+    }
+    if (this.copyResetTimeout !== undefined) {
+      window.clearTimeout(this.copyResetTimeout);
+      this.copyResetTimeout = undefined;
+    }
+  }
+
+  private async copyPixKey() {
+    if (!this.pixKeyValue) return;
+
+    const value = this.pixKeyValue;
+    let copied = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        copied = true;
+      }
+    } catch {
+      copied = false;
+    }
+
+    if (!copied) {
+      const textarea = document.createElement("textarea");
+      textarea.value = value;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      textarea.style.pointerEvents = "none";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        copied = document.execCommand("copy");
+      } catch {
+        copied = false;
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+
+    if (copied) this.showCopyFeedback();
+  }
+
+  private showCopyFeedback() {
+    if (!this.pixCopyButton.textView) return;
+    this.pixCopyButton.textView.text = "Copiado!";
+    if (this.copyResetTimeout !== undefined) {
+      window.clearTimeout(this.copyResetTimeout);
+    }
+    this.copyResetTimeout = window.setTimeout(() => {
+      if (this.pixCopyButton.textView) {
+        this.pixCopyButton.textView.text = "Copiar";
+      }
+      this.copyResetTimeout = undefined;
+    }, 2000);
   }
 }
